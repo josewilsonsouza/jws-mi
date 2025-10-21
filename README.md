@@ -1,16 +1,8 @@
 # JWs Market Intelligence
----
-title: JWs Market Intelligence
-emoji: 📊
-colorFrom: blue
-colorTo: cyan
-sdk: static
-pinned: false
----
 
 <div align="center">
 
-![JWs Market Intelligence](https://raw.githubusercontent.com/yourusername/yourrepo/main/logo.png)
+![JWs Market Intelligence](https://raw.githubusercontent.com/josewilsonsouza/jws-mi/main/images/logo_jwsmi.png)
 
 # 🚀 JWs Market Intelligence
 
