@@ -6,7 +6,7 @@
 
 Bem-vindo ao espaço da **JWs Market Intelligence** no GitHub.
 
-Realizamos projetos de análise de dados e inteligência artificial para apoiar decisões de Pequenos a Grandes empreendimentos.
+Realizo projetos de análise de dados e inteligência artificial para apoiar decisões de Pequenos a Grandes empreendimentos.
 Noss intenção é criar projetos prévios e entregar para pequenas empresas, instituições e outros clientes interessados.
 
 ---
