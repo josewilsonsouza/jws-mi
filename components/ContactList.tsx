@@ -6,23 +6,28 @@ import { formatPhoneNumber } from '@/lib/whatsapp-utils'
 interface ContactListProps {
   contacts: Contact[]
   tags: Tag[]
+  contactTags: Map<string, Tag[]>
   onOpenWhatsApp: (phone: string) => void
+  onEdit: (contact: Contact) => void
+  onEditTags: (contact: Contact) => void
+  onEditNotes: (contact: Contact) => void
+  onDelete: (contactId: string) => void
 }
 
 export default function ContactList({
   contacts,
   tags,
+  contactTags,
   onOpenWhatsApp,
+  onEdit,
+  onEditTags,
+  onEditNotes,
+  onDelete,
 }: ContactListProps) {
-  const getTagsForContact = (contactId: string): Tag[] => {
-    // TODO: Implementar relação many-to-many quando a DB estiver configurada
-    return []
-  }
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {contacts.map((contact) => {
-        const contactTags = getTagsForContact(contact.id)
+        const cTags = contactTags.get(contact.id) || []
 
         return (
           <div
@@ -52,9 +57,9 @@ export default function ContactList({
             </div>
 
             {/* Tags */}
-            {contactTags.length > 0 && (
+            {cTags.length > 0 && (
               <div className="mb-3 flex flex-wrap gap-1">
-                {contactTags.map((tag) => (
+                {cTags.map((tag) => (
                   <span
                     key={tag.id}
                     className="inline-block px-2 py-1 rounded-full text-xs font-medium text-white"
@@ -67,12 +72,31 @@ export default function ContactList({
             )}
 
             {/* Actions */}
-            <div className="flex gap-2 pt-3 border-t border-gray-100">
-              <button className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50 transition">
+            <div className="flex gap-2 pt-3 border-t border-gray-100 flex-wrap">
+              <button
+                onClick={() => onEdit(contact)}
+                className="flex-1 min-w-12 px-3 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50 transition"
+              >
                 Editar
               </button>
-              <button className="flex-1 px-3 py-2 text-sm bg-green-50 text-green-600 rounded hover:bg-green-100 transition">
+              <button
+                onClick={() => onEditTags(contact)}
+                className="flex-1 min-w-12 px-3 py-2 text-sm bg-green-50 text-green-600 rounded hover:bg-green-100 transition"
+              >
                 Tags
+              </button>
+              <button
+                onClick={() => onEditNotes(contact)}
+                className="flex-1 min-w-12 px-3 py-2 text-sm bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition"
+                title="Notas e lembretes"
+              >
+                📝
+              </button>
+              <button
+                onClick={() => onDelete(contact.id)}
+                className="px-3 py-2 text-sm border border-red-300 text-red-600 rounded hover:bg-red-50 transition"
+              >
+                ✕
               </button>
             </div>
           </div>
