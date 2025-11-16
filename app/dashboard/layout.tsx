@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import AppBar from '@/components/AppBar'
+import BottomNav from '@/components/BottomNav'
 
 export default function DashboardLayout({
   children,
@@ -10,12 +12,20 @@ export default function DashboardLayout({
 }) {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<'contacts' | 'tags' | 'profile'>('contacts')
+  const [contactCount, setContactCount] = useState(0)
 
   useEffect(() => {
     const getUser = async () => {
       const { data } = await supabase.auth.getSession()
       if (data?.session?.user) {
         setUser(data.session.user)
+        // Load contact count
+        const { count } = await supabase
+          .from('contacts')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', data.session.user.id)
+        setContactCount(count || 0)
       } else {
         window.location.href = '/'
       }
@@ -41,29 +51,51 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
       </div>
     )
   }
 
+  const handleTabChange = (tab: 'contacts' | 'tags' | 'profile') => {
+    setActiveTab(tab)
+    if (tab === 'profile') {
+      // Logout
+      supabase.auth.signOut()
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-green-600">WA Manager</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">{user?.email}</span>
-            <button
-              onClick={() => supabase.auth.signOut()}
-              className="px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200"
-            >
-              Sair
-            </button>
-          </div>
-        </div>
-      </nav>
-      {children}
+    <div className="min-h-screen bg-gray-50 flex flex-col md:pt-0 pt-14">
+      {/* Desktop AppBar */}
+      <div className="hidden md:block">
+        <AppBar
+          title="WA Manager"
+          showSearch={activeTab === 'contacts'}
+          isPremium={false}
+          contactCount={contactCount}
+          maxContacts={50}
+        />
+      </div>
+
+      {/* Mobile AppBar */}
+      <div className="md:hidden">
+        <AppBar
+          title="WA"
+          showSearch={activeTab === 'contacts'}
+          isPremium={false}
+          contactCount={contactCount}
+          maxContacts={50}
+        />
+      </div>
+
+      {/* Main Content */}
+      <main className="flex-1 pb-20 md:pb-0">
+        {children}
+      </main>
+
+      {/* Mobile Bottom Navigation */}
+      <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
     </div>
   )
 }

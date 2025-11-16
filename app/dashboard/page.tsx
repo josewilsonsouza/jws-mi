@@ -9,6 +9,8 @@ import TagManager from '@/components/TagManager'
 import ContactForm from '@/components/ContactForm'
 import ContactTagsModal from '@/components/ContactTagsModal'
 import ContactNotesModal from '@/components/ContactNotesModal'
+import EmptyState from '@/components/EmptyState'
+import PremiumPaywall from '@/components/PremiumPaywall'
 import { openWhatsAppChat } from '@/lib/whatsapp-utils'
 
 export default function Dashboard() {
@@ -21,6 +23,7 @@ export default function Dashboard() {
   const [showContactForm, setShowContactForm] = useState(false)
   const [showTagsModal, setShowTagsModal] = useState(false)
   const [showNotesModal, setShowNotesModal] = useState(false)
+  const [showPremiumPaywall, setShowPremiumPaywall] = useState(false)
   const [editingContact, setEditingContact] = useState<Contact | null>(null)
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
   const [contactCount, setContactCount] = useState(0)
@@ -98,6 +101,10 @@ export default function Dashboard() {
   }
 
   const handleAddContact = async () => {
+    if (contactCount >= maxContacts) {
+      setShowPremiumPaywall(true)
+      return
+    }
     setEditingContact(null)
     setShowContactForm(true)
   }
@@ -254,21 +261,45 @@ export default function Dashboard() {
         />
       )}
 
+      {/* Premium Paywall */}
+      <PremiumPaywall
+        isOpen={showPremiumPaywall}
+        onClose={() => setShowPremiumPaywall(false)}
+        contactCount={contactCount}
+        maxFreeContacts={maxContacts}
+      />
+
       {/* Contact List */}
       {loading ? (
-        <div className="text-center py-8">
+        <div className="text-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
         </div>
       ) : filteredContacts.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-          <p className="text-gray-600 mb-4">Nenhum contato encontrado</p>
-          {contacts.length === 0 && !isFreeTierMaxed && (
-            <button
-              onClick={handleAddContact}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700"
-            >
-              Criar primeiro contato
-            </button>
+        <div className="bg-white rounded-lg shadow-sm">
+          {contacts.length === 0 ? (
+            <EmptyState
+              icon="👥"
+              title="Nenhum contato ainda"
+              description="Comece adicionando seus primeiros contatos para organizar com tags e lembretes"
+              action={
+                !isFreeTierMaxed
+                  ? {
+                      label: '+ Adicionar Primeiro Contato',
+                      onClick: handleAddContact,
+                    }
+                  : undefined
+              }
+            />
+          ) : (
+            <EmptyState
+              icon="🔍"
+              title="Nenhum resultado"
+              description="Tente ajustar sua busca ou filtros"
+              action={{
+                label: 'Limpar Busca',
+                onClick: () => setSearchQuery(''),
+              }}
+            />
           )}
         </div>
       ) : (
