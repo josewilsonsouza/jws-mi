@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { supabase, Contact } from '@/lib/supabase'
+import { useState, useEffect } from 'react'
+import { supabase, Contact, Tag } from '@/lib/supabase'
 
 interface ContactFormProps {
   contact?: Contact
@@ -19,6 +19,39 @@ export default function ContactForm({
   const [email, setEmail] = useState(contact?.email || '')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [tags, setTags] = useState<Tag[]>([])
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
+
+  useEffect(() => {
+    loadTags()
+  }, [])
+
+  const loadTags = async () => {
+    try {
+      const { data: userData } = await supabase.auth.getSession()
+      if (!userData?.session?.user?.id) return
+
+      const { data: tagsData } = await supabase
+        .from('tags')
+        .select('*')
+        .eq('user_id', userData.session.user.id)
+        .order('created_at', { ascending: false })
+
+      if (tagsData) {
+        setTags(tagsData)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar tags:', error)
+    }
+  }
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTagIds((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((id) => id !== tagId)
+        : [...prev, tagId]
+    )
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,6 +66,7 @@ export default function ContactForm({
       }
 
       const userId = userData.session.user.id
+      let contactId = contact?.id
 
       if (contact) {
         // Update
@@ -50,7 +84,7 @@ export default function ContactForm({
         if (updateError) throw updateError
       } else {
         // Create
-        const { error: insertError } = await supabase
+        const { data: insertedContact, error: insertError } = await supabase
           .from('contacts')
           .insert({
             user_id: userId,
@@ -58,8 +92,33 @@ export default function ContactForm({
             phone,
             email,
           })
+          .select()
 
         if (insertError) throw insertError
+        if (insertedContact && insertedContact[0]) {
+          contactId = insertedContact[0].id
+        }
+      }
+
+      // Add tags if any selected
+      if (contactId && selectedTagIds.length > 0) {
+        // Remove existing tags
+        await supabase
+          .from('contact_tags')
+          .delete()
+          .eq('contact_id', contactId)
+
+        // Add new tags
+        const contactTagsData = selectedTagIds.map((tagId) => ({
+          contact_id: contactId,
+          tag_id: tagId,
+        }))
+
+        const { error: tagError } = await supabase
+          .from('contact_tags')
+          .insert(contactTagsData)
+
+        if (tagError) throw tagError
       }
 
       onSuccess()
@@ -118,6 +177,39 @@ export default function ContactForm({
           placeholder="joao@example.com"
         />
       </div>
+
+      {/* Tags Selection */}
+      {tags.length > 0 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Tags (contexto)
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {tags.map((tag) => (
+              <button
+                key={tag.id}
+                type="button"
+                onClick={() => toggleTag(tag.id)}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 ${
+                  selectedTagIds.includes(tag.id)
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <span className="flex-shrink-0">
+                  {selectedTagIds.includes(tag.id) ? '✓' : ''}
+                </span>
+                {tag.name}
+              </button>
+            ))}
+          </div>
+          {selectedTagIds.length > 0 && (
+            <p className="text-xs text-gray-500 mt-2">
+              {selectedTagIds.length} tag(s) selecionada(s)
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="flex gap-2 pt-4">
         <button

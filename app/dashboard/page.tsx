@@ -11,6 +11,7 @@ import ContactTagsModal from '@/components/ContactTagsModal'
 import ContactNotesModal from '@/components/ContactNotesModal'
 import EmptyState from '@/components/EmptyState'
 import PremiumPaywall from '@/components/PremiumPaywall'
+import DashboardStats from '@/components/DashboardStats'
 import { openWhatsAppChat } from '@/lib/whatsapp-utils'
 
 export default function Dashboard() {
@@ -162,13 +163,25 @@ export default function Dashboard() {
   return (
     <div className="max-w-7xl mx-auto p-4">
       {/* Header */}
-      <div className="mb-8 flex justify-between items-start">
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h2>
+        <p className="text-gray-600">
+          Bem-vindo! Aqui você gerencia seus contatos, tags e preferências.
+        </p>
+      </div>
+
+      {/* Dashboard Stats */}
+      <DashboardStats
+        contactCount={contactCount}
+        tagCount={tags.length}
+        pinnedCount={0}
+        maxContacts={maxContacts}
+      />
+
+      {/* Action Bar */}
+      <div className="mb-8 flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Meus Contatos</h2>
-          <p className="text-gray-600">
-            {contactCount} / {maxContacts} contatos enriquecidos
-            {isFreeTierMaxed && ' (limite da versão gratuita atingido)'}
-          </p>
+          <h3 className="text-2xl font-bold text-gray-900">Meus Contatos</h3>
         </div>
         {!isFreeTierMaxed && (
           <button
@@ -176,29 +189,6 @@ export default function Dashboard() {
             className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition"
           >
             + Novo Contato
-          </button>
-        )}
-      </div>
-
-      {/* Progress Bar */}
-      <div className="mb-6 bg-white p-4 rounded-lg shadow-sm">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">
-            Uso do plano gratuito
-          </span>
-          <span className="text-sm text-gray-600">
-            {Math.round((contactCount / maxContacts) * 100)}%
-          </span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-green-600 h-2 rounded-full transition-all"
-            style={{ width: `${(contactCount / maxContacts) * 100}%` }}
-          ></div>
-        </div>
-        {isFreeTierMaxed && (
-          <button className="mt-3 w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">
-            Fazer Upgrade para Premium
           </button>
         )}
       </div>
