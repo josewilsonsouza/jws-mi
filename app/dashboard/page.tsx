@@ -8,6 +8,7 @@ import SearchBar from '@/components/SearchBar'
 import TagManager from '@/components/TagManager'
 import ContactForm from '@/components/ContactForm'
 import ContactTagsModal from '@/components/ContactTagsModal'
+import ContactNotesModal from '@/components/ContactNotesModal'
 import { openWhatsAppChat } from '@/lib/whatsapp-utils'
 
 export default function Dashboard() {
@@ -19,6 +20,7 @@ export default function Dashboard() {
   const [showTagManager, setShowTagManager] = useState(false)
   const [showContactForm, setShowContactForm] = useState(false)
   const [showTagsModal, setShowTagsModal] = useState(false)
+  const [showNotesModal, setShowNotesModal] = useState(false)
   const [editingContact, setEditingContact] = useState<Contact | null>(null)
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
   const [contactCount, setContactCount] = useState(0)
@@ -121,12 +123,21 @@ export default function Dashboard() {
     setShowTagsModal(true)
   }
 
+  const handleEditNotes = (contact: Contact) => {
+    setSelectedContact(contact)
+    setShowNotesModal(true)
+  }
+
   const handleFormSuccess = async () => {
     setShowContactForm(false)
     await loadData()
   }
 
   const handleTagsSuccess = async () => {
+    await loadData()
+  }
+
+  const handleNotesSuccess = async () => {
     await loadData()
   }
 
@@ -233,6 +244,16 @@ export default function Dashboard() {
         />
       )}
 
+      {/* Notes Modal */}
+      {showNotesModal && selectedContact && (
+        <ContactNotesModal
+          contactId={selectedContact.id}
+          contactName={selectedContact.name}
+          onClose={() => setShowNotesModal(false)}
+          onSuccess={handleNotesSuccess}
+        />
+      )}
+
       {/* Contact List */}
       {loading ? (
         <div className="text-center py-8">
@@ -258,6 +279,7 @@ export default function Dashboard() {
           onOpenWhatsApp={openWhatsAppChat}
           onEdit={handleEditContact}
           onEditTags={handleEditTags}
+          onEditNotes={handleEditNotes}
           onDelete={handleDeleteContact}
         />
       )}
