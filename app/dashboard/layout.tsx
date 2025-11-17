@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import AppBar from '@/components/AppBar'
 import BottomNav from '@/components/BottomNav'
+import ProfileSection from '@/components/ProfileSection'
 
 export default function DashboardLayout({
   children,
@@ -59,10 +60,6 @@ export default function DashboardLayout({
 
   const handleTabChange = (tab: 'contacts' | 'tags' | 'profile') => {
     setActiveTab(tab)
-    if (tab === 'profile') {
-      // Logout
-      supabase.auth.signOut()
-    }
   }
 
   return (
@@ -91,7 +88,11 @@ export default function DashboardLayout({
 
       {/* Main Content */}
       <main className="flex-1 pb-20 md:pb-0">
-        {children}
+        {activeTab === 'profile' ? (
+          <ProfileSection userEmail={user?.email} />
+        ) : (
+          children
+        )}
       </main>
 
       {/* Mobile Bottom Navigation */}
