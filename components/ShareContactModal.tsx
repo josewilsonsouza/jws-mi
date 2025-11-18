@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Contact } from '@/lib/supabase'
-import QRCode from 'qrcode.react'
+import { QRCodeSVG as QRCode } from 'qrcode.react'
 import { Copy, Download, X, MessageCircle } from 'lucide-react'
 
 interface ShareContactModalProps {
@@ -15,17 +15,6 @@ export default function ShareContactModal({
   onClose,
 }: ShareContactModalProps) {
   const [copied, setCopied] = useState(false)
-
-  // Create vCard (standard contact format)
-  const createVCard = () => {
-    const vcard = `BEGIN:VCARD
-VERSION:3.0
-FN:${contact.name}
-TEL:${contact.phone}
-${contact.email ? `EMAIL:${contact.email}` : ''}
-END:VCARD`
-    return vcard
-  }
 
   // Share URL (você pode colocar um link para um servidor que gera vCard)
   const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/share-contact/${contact.id}`

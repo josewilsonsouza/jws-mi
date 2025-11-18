@@ -19,7 +19,7 @@ export default function DashboardLayout({
     checkAuth()
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (_event, session) => {
         if (!session?.user) {
           window.location.href = '/'
         }

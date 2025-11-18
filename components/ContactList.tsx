@@ -6,7 +6,6 @@ import Avatar from './Avatar'
 
 interface ContactListProps {
   contacts: Contact[]
-  tags: Tag[]
   contactTags: Map<string, Tag[]>
   onOpenWhatsApp: (phone: string) => void
   onEdit: (contact: Contact) => void
@@ -17,7 +16,6 @@ interface ContactListProps {
 
 export default function ContactList({
   contacts,
-  tags,
   contactTags,
   onOpenWhatsApp,
   onEdit,

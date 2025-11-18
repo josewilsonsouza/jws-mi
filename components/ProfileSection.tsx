@@ -21,7 +21,7 @@ export default function ProfileSection({ userEmail }: ProfileSectionProps) {
     website: '',
   })
   const [isEditing, setIsEditing] = useState(false)
-  const [showPremiumModal, setShowPremiumModal] = useState(false)
+  const [_showPremiumModal, setShowPremiumModal] = useState(false)
 
   useEffect(() => {
     loadProfileData()

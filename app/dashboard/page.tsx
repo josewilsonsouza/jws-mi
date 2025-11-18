@@ -12,6 +12,7 @@ import ProfilePage from '@/components/ProfilePage'
 import ContactForm from '@/components/ContactForm'
 import SearchBar from '@/components/SearchBar'
 import { Plus } from 'lucide-react'
+import { registerServiceWorker, scheduleFollowUpChecks } from '@/lib/push-notifications'
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<'contacts' | 'tags' | 'profile'>('contacts')
@@ -28,6 +29,9 @@ export default function Dashboard() {
   const [userEmail, setUserEmail] = useState<string>('')
 
   useEffect(() => {
+    // Register service worker for notifications
+    registerServiceWorker().catch(console.error)
+
     loadData()
   }, [])
 
@@ -127,6 +131,17 @@ export default function Dashboard() {
     await loadData()
   }
 
+  // Set up periodic follow-up checks when contacts change
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null
+    if (contacts.length > 0) {
+      interval = scheduleFollowUpChecks(contacts, 60, 7)
+    }
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [contacts])
+
   const filteredContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     contact.phone.includes(searchQuery) ||
@@ -190,6 +205,7 @@ export default function Dashboard() {
               userEmail={userEmail}
               contactCount={contactCount}
               tagCount={tags.length}
+              contacts={contacts}
             />
           )}
         </div>

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { MessageCircle, Tag, Search, Crown, Bell, Check } from 'lucide-react'
+import { MessageCircle, Tag, Search, Crown, Check } from 'lucide-react'
 
 export default function LandingPage() {
   return (

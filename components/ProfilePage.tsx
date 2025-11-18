@@ -1,19 +1,22 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase, Contact } from '@/lib/supabase'
 import { Crown, LogOut, MessageCircle, Tag, Users } from 'lucide-react'
+import NotificationPreferences from './NotificationPreferences'
 
 interface ProfilePageProps {
   userEmail?: string
   contactCount: number
   tagCount: number
+  contacts?: Contact[]
 }
 
 export default function ProfilePage({
   userEmail,
   contactCount,
   tagCount,
+  contacts = [],
 }: ProfilePageProps) {
   const [profileData, setProfileData] = useState({
     displayName: '',
@@ -136,6 +139,13 @@ export default function ProfilePage({
           </div>
         </div>
       </div>
+
+      {/* Notification Preferences */}
+      {contacts.length > 0 && (
+        <div>
+          <NotificationPreferences contacts={contacts} showInline={true} />
+        </div>
+      )}
 
       {/* Premium Section */}
       {!isPremium && (

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase, Interaction } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 interface ContactNotesModalProps {
   contactId: string
