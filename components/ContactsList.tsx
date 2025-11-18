@@ -1,6 +1,7 @@
 'use client'
 
 import { Contact, Tag } from '@/lib/supabase'
+import { formatLastContact, getLastContactColor } from '@/lib/date-utils'
 
 interface ContactsListProps {
   contacts: Contact[]
@@ -50,7 +51,12 @@ export default function ContactsList({
           >
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-1">{contact.name}</h3>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold text-gray-900">{contact.name}</h3>
+                  <span className={`text-xs font-medium ${getLastContactColor(contact.last_contact_date)}`}>
+                    {formatLastContact(contact.last_contact_date)}
+                  </span>
+                </div>
                 {tags.length > 0 && (
                   <div className="flex flex-wrap gap-1">
                     {displayTags.map((tag) => (

@@ -19,6 +19,7 @@ export interface Contact {
   phone: string
   email?: string
   avatar_url?: string
+  last_contact_date?: string
   created_at: string
   updated_at: string
 }

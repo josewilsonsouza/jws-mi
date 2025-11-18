@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { Contact, Tag, supabase } from '@/lib/supabase'
-import { MessageCircle, Edit2, Trash2, X } from 'lucide-react'
+import { MessageCircle, Edit2, Trash2, X, Share2 } from 'lucide-react'
 import { openWhatsAppChat } from '@/lib/whatsapp-utils'
+import ShareContactModal from './ShareContactModal'
 
 interface ContactDetailModalProps {
   contact: Contact | null
@@ -26,6 +27,7 @@ export default function ContactDetailModal({
 }: ContactDetailModalProps) {
   const [isDeleting, setIsDeleting] = useState(false)
   const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [showShareModal, setShowShareModal] = useState(false)
 
   useEffect(() => {
     if (contact && contactTags) {
@@ -146,6 +148,13 @@ export default function ContactDetailModal({
         {/* Actions */}
         <div className="space-y-2">
           <button
+            onClick={() => setShowShareModal(true)}
+            className="w-full px-4 py-2 border border-blue-300 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition flex items-center justify-center gap-2"
+          >
+            <Share2 className="h-4 w-4" />
+            Compartilhar
+          </button>
+          <button
             onClick={() => {
               onEdit(contact)
               onClose()
@@ -164,6 +173,14 @@ export default function ContactDetailModal({
             {isDeleting ? 'Deletando...' : 'Deletar Contato'}
           </button>
         </div>
+
+        {/* Share Modal */}
+        {showShareModal && (
+          <ShareContactModal
+            contact={contact}
+            onClose={() => setShowShareModal(false)}
+          />
+        )}
       </div>
     </div>
   )
