@@ -17,10 +17,14 @@ export default function ContactForm({
   const [name, setName] = useState(contact?.name || '')
   const [phone, setPhone] = useState(contact?.phone || '')
   const [email, setEmail] = useState(contact?.email || '')
+  const [context, setContext] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [tags, setTags] = useState<Tag[]>([])
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
+  const [showCreateTag, setShowCreateTag] = useState(false)
+  const [newTagName, setNewTagName] = useState('')
+  const [newTagColor, setNewTagColor] = useState('#16a34a')
 
   useEffect(() => {
     loadTags()
@@ -51,6 +55,35 @@ export default function ContactForm({
         ? prev.filter((id) => id !== tagId)
         : [...prev, tagId]
     )
+  }
+
+  const handleCreateNewTag = async () => {
+    if (!newTagName.trim()) return
+
+    try {
+      const { data: userData } = await supabase.auth.getSession()
+      if (!userData?.session?.user?.id) return
+
+      const { data: createdTag } = await supabase
+        .from('tags')
+        .insert({
+          user_id: userData.session.user.id,
+          name: newTagName,
+          color: newTagColor,
+        })
+        .select()
+
+      if (createdTag && createdTag[0]) {
+        const newTag = createdTag[0]
+        setTags((prev) => [newTag, ...prev])
+        setSelectedTagIds((prev) => [...prev, newTag.id])
+        setNewTagName('')
+        setNewTagColor('#16a34a')
+        setShowCreateTag(false)
+      }
+    } catch (error) {
+      console.error('Erro ao criar tag:', error)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -177,6 +210,75 @@ export default function ContactForm({
           placeholder="joao@example.com"
         />
       </div>
+
+      {/* Context */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Contexto / Notas
+        </label>
+        <textarea
+          value={context}
+          onChange={(e) => setContext(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+          placeholder="Ex: Conheci na conferência de tech, trabalha com IA..."
+          rows={3}
+        />
+      </div>
+
+      {/* Create New Tag */}
+      {!showCreateTag && (
+        <button
+          type="button"
+          onClick={() => setShowCreateTag(true)}
+          className="w-full px-3 py-2 border border-green-300 text-green-600 rounded-lg text-sm font-medium hover:bg-green-50 transition"
+        >
+          + Criar Nova Tag
+        </button>
+      )}
+
+      {showCreateTag && (
+        <div className="p-3 bg-green-50 border border-green-200 rounded-lg space-y-2">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newTagName}
+              onChange={(e) => setNewTagName(e.target.value)}
+              placeholder="Nome da tag..."
+              className="flex-1 px-3 py-1 border border-green-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+            />
+            <button
+              type="button"
+              onClick={handleCreateNewTag}
+              className="px-3 py-1 bg-green-600 text-white rounded text-sm font-medium hover:bg-green-700 transition"
+            >
+              ✓
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowCreateTag(false)
+                setNewTagName('')
+              }}
+              className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-400 transition"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="flex gap-1">
+            {['#16a34a', '#2563eb', '#dc2626', '#ea580c', '#9333ea'].map((color) => (
+              <button
+                key={color}
+                type="button"
+                onClick={() => setNewTagColor(color)}
+                className={`w-6 h-6 rounded-full transition ${
+                  newTagColor === color ? 'ring-2 ring-offset-1 ring-gray-400' : ''
+                }`}
+                style={{ backgroundColor: color }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Tags Selection */}
       {tags.length > 0 && (
