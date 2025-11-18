@@ -12,6 +12,9 @@ import ContactNotesModal from '@/components/ContactNotesModal'
 import EmptyState from '@/components/EmptyState'
 import PremiumPaywall from '@/components/PremiumPaywall'
 import DashboardStats from '@/components/DashboardStats'
+import ContactsList from '@/components/ContactsList'
+import ContactDetailModal from '@/components/ContactDetailModal'
+import TagsMenu from '@/components/TagsMenu'
 import { openWhatsAppChat } from '@/lib/whatsapp-utils'
 
 export default function Dashboard() {
@@ -29,6 +32,8 @@ export default function Dashboard() {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
   const [contactCount, setContactCount] = useState(0)
   const [maxContacts] = useState(50) // Free tier limit
+  const [activeMenu, setActiveMenu] = useState<'contacts' | 'tags'>('contacts')
+  const [selectedContactDetail, setSelectedContactDetail] = useState<Contact | null>(null)
 
   useEffect(() => {
     loadData()
@@ -178,40 +183,67 @@ export default function Dashboard() {
         maxContacts={maxContacts}
       />
 
-      {/* Action Bar */}
-      <div className="mb-8 flex justify-between items-center">
-        <div>
-          <h3 className="text-2xl font-bold text-gray-900">Meus Contatos</h3>
-        </div>
-        {!isFreeTierMaxed && (
-          <button
-            onClick={handleAddContact}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition"
-          >
-            + Novo Contato
-          </button>
-        )}
-      </div>
-
-      {/* Controls */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="md:col-span-2">
-          <SearchBar value={searchQuery} onChange={setSearchQuery} />
-        </div>
+      {/* Menu Tabs */}
+      <div className="mb-6 flex gap-2 border-b border-gray-200">
         <button
-          onClick={() => setShowTagManager(!showTagManager)}
-          className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition"
+          onClick={() => {
+            setActiveMenu('contacts')
+            setSelectedContactDetail(null)
+          }}
+          className={`px-4 py-3 font-medium border-b-2 transition ${
+            activeMenu === 'contacts'
+              ? 'border-green-600 text-green-600'
+              : 'border-transparent text-gray-600 hover:text-gray-900'
+          }`}
         >
-          {showTagManager ? 'Fechar Tags' : 'Gerenciar Tags'}
+          👥 Contatos
+        </button>
+        <button
+          onClick={() => setActiveMenu('tags')}
+          className={`px-4 py-3 font-medium border-b-2 transition ${
+            activeMenu === 'tags'
+              ? 'border-green-600 text-green-600'
+              : 'border-transparent text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          🏷️ Tags
         </button>
       </div>
 
-      {/* Tag Manager */}
-      {showTagManager && (
-        <TagManager tags={tags} onTagsChange={(newTags) => {
-          setTags(newTags)
-          loadData()
-        }} />
+      {/* Contacts Menu */}
+      {activeMenu === 'contacts' && (
+        <div className="space-y-4">
+          {/* Action Bar */}
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-bold text-gray-900">Meus Contatos</h3>
+            {!isFreeTierMaxed && (
+              <button
+                onClick={handleAddContact}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition"
+              >
+                + Novo
+              </button>
+            )}
+          </div>
+
+          {/* Search */}
+          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+
+          {/* Contacts List Component */}
+          <ContactsList
+            contacts={filteredContacts}
+            contactTags={contactTags}
+            onSelectContact={setSelectedContactDetail}
+            loading={loading}
+          />
+        </div>
+      )}
+
+      {/* Tags Menu */}
+      {activeMenu === 'tags' && (
+        <div>
+          <TagsMenu tags={tags} onTagsChange={loadData} />
+        </div>
       )}
 
       {/* Contact Form Modal */}
@@ -259,49 +291,16 @@ export default function Dashboard() {
         maxFreeContacts={maxContacts}
       />
 
-      {/* Contact List */}
-      {loading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
-        </div>
-      ) : filteredContacts.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm">
-          {contacts.length === 0 ? (
-            <EmptyState
-              icon="👥"
-              title="Nenhum contato ainda"
-              description="Comece adicionando seus primeiros contatos para organizar com tags e lembretes"
-              action={
-                !isFreeTierMaxed
-                  ? {
-                      label: '+ Adicionar Primeiro Contato',
-                      onClick: handleAddContact,
-                    }
-                  : undefined
-              }
-            />
-          ) : (
-            <EmptyState
-              icon="🔍"
-              title="Nenhum resultado"
-              description="Tente ajustar sua busca ou filtros"
-              action={{
-                label: 'Limpar Busca',
-                onClick: () => setSearchQuery(''),
-              }}
-            />
-          )}
-        </div>
-      ) : (
-        <ContactList
-          contacts={filteredContacts}
+      {/* Contact Detail Modal */}
+      {selectedContactDetail && (
+        <ContactDetailModal
+          contact={selectedContactDetail}
           tags={tags}
-          contactTags={contactTags}
-          onOpenWhatsApp={openWhatsAppChat}
+          contactTags={contactTags.get(selectedContactDetail.id) || []}
+          onClose={() => setSelectedContactDetail(null)}
           onEdit={handleEditContact}
-          onEditTags={handleEditTags}
-          onEditNotes={handleEditNotes}
           onDelete={handleDeleteContact}
+          onTagsChange={loadData}
         />
       )}
     </div>

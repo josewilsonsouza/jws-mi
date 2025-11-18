@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Crown } from 'lucide-react'
+import PersonalNotes from './PersonalNotes'
 
 interface ProfileSectionProps {
   userEmail?: string
@@ -333,6 +334,12 @@ export default function ProfileSection({ userEmail }: ProfileSectionProps) {
               <span className="text-gray-400">→</span>
             </button>
           </div>
+        </div>
+
+        {/* Personal Notes */}
+        <div className="bg-white rounded-lg shadow-sm p-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">📝 Minhas Tarefas & Anotações</h3>
+          <PersonalNotes />
         </div>
 
         {/* Logout */}
