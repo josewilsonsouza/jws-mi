@@ -206,6 +206,7 @@ export default function Dashboard() {
               contactCount={contactCount}
               tagCount={tags.length}
               contacts={contacts}
+              onSyncComplete={loadData}
             />
           )}
         </div>

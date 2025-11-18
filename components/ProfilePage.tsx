@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react'
 import { supabase, Contact } from '@/lib/supabase'
 import { Crown, LogOut, MessageCircle, Tag, Users } from 'lucide-react'
 import NotificationPreferences from './NotificationPreferences'
+import GoogleContactsSync from './GoogleContactsSync'
 
 interface ProfilePageProps {
   userEmail?: string
   contactCount: number
   tagCount: number
   contacts?: Contact[]
+  onSyncComplete?: () => void
 }
 
 export default function ProfilePage({
@@ -17,6 +19,7 @@ export default function ProfilePage({
   contactCount,
   tagCount,
   contacts = [],
+  onSyncComplete = () => {},
 }: ProfilePageProps) {
   const [profileData, setProfileData] = useState({
     displayName: '',
@@ -146,6 +149,16 @@ export default function ProfilePage({
           <NotificationPreferences contacts={contacts} showInline={true} />
         </div>
       )}
+
+      {/* Google Contacts Sync */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <h3 className="text-lg font-bold text-gray-900 mb-4">Importar Contatos</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Sincronize seus contatos do Google para enriquecer sua base de contatos com fotos de
+          perfil e outras informações.
+        </p>
+        <GoogleContactsSync contacts={contacts} onSyncComplete={onSyncComplete} />
+      </div>
 
       {/* Premium Section */}
       {!isPremium && (

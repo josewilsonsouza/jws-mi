@@ -3,6 +3,9 @@
 import { useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
+// Disable static generation for dashboard routes
+export const dynamic = 'force-dynamic'
+
 export default function DashboardLayout({
   children,
 }: {

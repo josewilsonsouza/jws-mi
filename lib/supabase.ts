@@ -1,15 +1,25 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing Supabase credentials. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local'
-  )
-}
+// Create a dummy client if credentials are missing (for build time)
+// This prevents build failures when environment variables aren't set
+const supabase: SupabaseClient = (() => {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    // Only throw error in browser/client context, not during build
+    if (typeof window !== 'undefined') {
+      throw new Error(
+        'Missing Supabase credentials. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local'
+      )
+    }
+    // Create a dummy client for server-side builds
+    return createClient('https://dummy.supabase.co', 'dummy-key')
+  }
+  return createClient(supabaseUrl, supabaseAnonKey)
+})()
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export { supabase }
 
 // Type definitions
 export interface Contact {
