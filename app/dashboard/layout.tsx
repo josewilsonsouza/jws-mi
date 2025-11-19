@@ -3,6 +3,9 @@
 import { useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
+// Disable static generation for dashboard routes
+export const dynamic = 'force-dynamic'
+
 export default function DashboardLayout({
   children,
 }: {
@@ -19,7 +22,7 @@ export default function DashboardLayout({
     checkAuth()
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (_event, session) => {
         if (!session?.user) {
           window.location.href = '/'
         }
