@@ -11,11 +11,12 @@ import TagsMenu from '@/components/TagsMenu'
 import ProfilePage from '@/components/ProfilePage'
 import ContactForm from '@/components/ContactForm'
 import SearchBar from '@/components/SearchBar'
+import PipelineKanban from '@/components/PipelineKanban'
 import { Plus } from 'lucide-react'
 import { registerServiceWorker, scheduleFollowUpChecks } from '@/lib/push-notifications'
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState<'contacts' | 'tags' | 'profile'>('contacts')
+  const [activeTab, setActiveTab] = useState<'contacts' | 'tags' | 'pipeline' | 'profile'>('contacts')
   const [contacts, setContacts] = useState<Contact[]>([])
   const [tags, setTags] = useState<Tag[]>([])
   const [contactTags, setContactTags] = useState<Map<string, Tag[]>>(new Map())
@@ -196,6 +197,19 @@ export default function Dashboard() {
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Minhas Tags</h2>
               <TagsMenu tags={tags} onTagsChange={loadData} />
+            </div>
+          )}
+
+          {/* Pipeline Tab */}
+          {activeTab === 'pipeline' && (
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Pipeline de Vendas</h2>
+              <PipelineKanban
+                contacts={contacts}
+                tags={tags}
+                contactTags={contactTags}
+                onUpdateContact={loadData}
+              />
             </div>
           )}
 

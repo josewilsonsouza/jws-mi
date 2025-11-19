@@ -30,6 +30,7 @@ export interface Contact {
   email?: string
   avatar_url?: string
   last_contact_date?: string
+  pipeline_stage?: 'lead' | 'prospect' | 'negotiation' | 'won' | 'lost'
   created_at: string
   updated_at: string
 }
