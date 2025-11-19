@@ -1,10 +1,10 @@
 'use client'
 
-import { Users, Tag, User } from 'lucide-react'
+import { Users, Tag, User, Kanban } from 'lucide-react'
 
 interface BottomTabBarProps {
-  activeTab: 'contacts' | 'tags' | 'profile'
-  onTabChange: (tab: 'contacts' | 'tags' | 'profile') => void
+  activeTab: 'contacts' | 'tags' | 'pipeline' | 'profile'
+  onTabChange: (tab: 'contacts' | 'tags' | 'pipeline' | 'profile') => void
 }
 
 export default function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {
@@ -18,6 +18,11 @@ export default function BottomTabBar({ activeTab, onTabChange }: BottomTabBarPro
       id: 'tags' as const,
       label: 'Tags',
       icon: Tag,
+    },
+    {
+      id: 'pipeline' as const,
+      label: 'Pipeline',
+      icon: Kanban,
     },
     {
       id: 'profile' as const,

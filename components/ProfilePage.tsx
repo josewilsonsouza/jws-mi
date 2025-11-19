@@ -5,6 +5,7 @@ import { supabase, Contact } from '@/lib/supabase'
 import { Crown, LogOut, MessageCircle, Tag, Users } from 'lucide-react'
 import NotificationPreferences from './NotificationPreferences'
 import GoogleContactsSync from './GoogleContactsSync'
+import DeviceContactsPicker from './DeviceContactsPicker'
 
 interface ProfilePageProps {
   userEmail?: string
@@ -150,14 +151,16 @@ export default function ProfilePage({
         </div>
       )}
 
-      {/* Google Contacts Sync */}
+      {/* Import Contacts Section */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-4">Importar Contatos</h3>
         <p className="text-sm text-gray-600 mb-4">
-          Sincronize seus contatos do Google para enriquecer sua base de contatos com fotos de
-          perfil e outras informações.
+          Enriqueca sua base de contatos importando de múltiplas fontes.
         </p>
-        <GoogleContactsSync contacts={contacts} onSyncComplete={onSyncComplete} />
+        <div className="space-y-3">
+          <GoogleContactsSync contacts={contacts} onSyncComplete={onSyncComplete} />
+          <DeviceContactsPicker contacts={contacts} onImportComplete={onSyncComplete} />
+        </div>
       </div>
 
       {/* Premium Section */}
